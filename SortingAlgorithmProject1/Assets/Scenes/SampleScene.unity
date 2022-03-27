@@ -235,7 +235,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de9b363b348cdd1469373601d62144cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  amount: 500
+  amount: 50
   tilePrefab: {fileID: 7569358285270470430, guid: eb33a39db3f2d224a844bc04bf2d82e0, type: 3}
   sortingAlgorithm: quicksort
 --- !u!4 &1142254154
