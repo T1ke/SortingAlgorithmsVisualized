@@ -5,17 +5,19 @@ using UnityEngine;
 public class SortingScript : MonoBehaviour
 {
     public int amount = 10;
-    int[] allTiles;
+    
     public GameObject tilePrefab;
+    public float xMultiplier = 1f;
     float tileWidth;
     float tileHeightScale;
     public string sortingAlgorithm = "quicksort";
     List<int> arrray;
-    GameObject[] goArr;
+    List<GameObject> tilePrefabArray;
     //int start;
     int end;
     List<int> values;
     List<int> listOfElems;
+    
     // Start is called before the first frame update
     private void Awake()
     {
@@ -32,28 +34,11 @@ public class SortingScript : MonoBehaviour
             listOfElems.Add(values[index]);
             values.RemoveAt(index);
         }
-        goArr = new GameObject[amount];
-
-
-        //start = 0;
+        
         end = listOfElems.Count- 1;
         
-
-        /*
-        while (i < amount)
-        {
-            int rand = (int)Random.Range(1, amount);
-            if (rand > biggest)
-            {
-                biggest = rand;
-            }
-           
-            allTiles[i] = rand;
-            i++;
-        }*/
-        tileWidth = (float) 1 / amount;
-        
-        tileHeightScale = (float) 1 / amount ;
+        tileWidth = (float) 1 / amount;   
+        tileHeightScale = (float) 10 / amount ;
 
     }
 
@@ -80,63 +65,56 @@ public class SortingScript : MonoBehaviour
     public List<int> instantiateTiles()
     {
         List<int> tileArray = new List<int>();
-
-        float i = (tileWidth * 0.5f)*0.8f;
-
-
+        tilePrefabArray = new List<GameObject>();
+        float i = tileWidth * 0.5f;
         int index = 0;
         foreach (var tile in listOfElems)
         {
             Vector3 tilePos = new Vector3(i, 0.5f, 10f);
 
-            Instantiate(tilePrefab, Camera.main.ViewportToWorldPoint(tilePos), Quaternion.identity);
-
-            float scaleX = Camera.main.orthographicSize * tileWidth;
+            GameObject prefab = Instantiate(tilePrefab, Camera.main.ViewportToWorldPoint(tilePos), Quaternion.identity);
+           // print(prefab.transform.position);
+           
+            float scaleX = Camera.main.orthographicSize * tileWidth*xMultiplier;
             float scaleY = Camera.main.orthographicSize * 2 * tile * tileHeightScale;
 
             tilePrefab.transform.localScale = new Vector3(scaleX, scaleY, 0);
-            goArr[index] = tilePrefab;
+            tilePrefabArray.Add(prefab);
+            
             tileArray.Add(tile);
             index++;
             i += tileWidth;
 
         }
+
         return tileArray;
     }
 
     IEnumerator quicksort(List<int> arrray, int start, int endv)
     {
-        /*  if (start >= endv)
-          {
-              return;
-          }*/
+
         if (start <= endv)
         {
             int indexStart = start;
             int end = endv;
             int indexVal = arrray[endv];
-            int temp = 0;
             
             for (int i = start; i < end; i++)
             {
                 if (arrray[i] <= indexVal)
                 {
-                    //swap(arrray, i, indexStart);
-                    temp = arrray[i];
-                    arrray[i] = arrray[indexStart];
-                    arrray[indexStart] = temp;
+                    swap(arrray, i, indexStart);
+
                     indexStart++;
                     yield return new WaitForEndOfFrame();
                 }
             }
-            //swap(arrray, indexStart, endv);
-            temp = arrray[indexStart];
-            arrray[indexStart] = arrray[endv];
-            arrray[endv] = temp;
-            printArr(arrray);
-            int l = indexStart;
-            StartCoroutine(quicksort(arrray, start, l - 1));
-            StartCoroutine(quicksort(arrray, l + 1, endv));
+            swap(arrray, indexStart, endv);
+
+          //  printArr(arrray);
+
+            StartCoroutine(quicksort(arrray, start, indexStart - 1));
+            StartCoroutine(quicksort(arrray, indexStart + 1, endv));
         }
     }
    
@@ -158,36 +136,21 @@ public class SortingScript : MonoBehaviour
     }
 
     void swap(List<int> arr, int a, int b)
-    {
+    { //swap the places of the 2 elements
         var temp = arr[a];
         arr[a] = arr[b];
         arr[b] = temp;
+
     }
 
     void updateTilePositions()
-    { //TODO UPDATE TILES AFTER EVERY UPDATE
-        GameObject[] taged = GameObject.FindGameObjectsWithTag("Tile");
-        foreach (var item in taged)
+    {
+        int kx = 0;
+        foreach (var item in tilePrefabArray)
         {
-            Destroy(item);
+            item.transform.localScale = new Vector3(item.transform.localScale.x, tileHeightScale*arrray[kx], item.transform.localScale.z);
+            kx++;
         }
-        float i = 0;
-        //float i = tileWidth;
-        foreach (var tile in arrray)
-        {
-            Vector3 tilePos = new Vector3(i, 0.5f, 10f);
-
-             Instantiate(tilePrefab, Camera.main.ViewportToWorldPoint(tilePos), Quaternion.identity);
-
-            float scaleX = Camera.main.orthographicSize * tileWidth;
-            float scaleY = Camera.main.orthographicSize * 2 * tile * tileHeightScale;
-
-            tilePrefab.transform.localScale = new Vector3(scaleX, scaleY, 0);
-
-            i += tileWidth;
-
-        }
-
     }
 
     void printArr(int[] arr)
@@ -196,27 +159,26 @@ public class SortingScript : MonoBehaviour
         foreach (var item in arr)
         {
             res += item + ", ";
-
         }
         print(res);
     }
+
     void printArr(GameObject[] arr)
     {
         string res = "";
         foreach (var item in arr)
         {
             res += item.transform.localPosition.x + ", ";
-
         }
         print(res);
     }
+
     void printArr(List<int> arr)
     {
         string res = "";
         foreach (var item in arr)
         {
             res += item + ", ";
-
         }
         print(res);
     }
