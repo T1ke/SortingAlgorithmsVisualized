@@ -17,7 +17,10 @@ public class SortingScript : MonoBehaviour
     int end;
     List<int> values;
     List<int> listOfElems;
+
+    float time;
     
+
     // Start is called before the first frame update
     private void Awake()
     {
@@ -45,10 +48,17 @@ public class SortingScript : MonoBehaviour
     private void Update()
     {
         //printArr(aray);
+        if(sortingAlgorithm != "completed")
+        {
+            time += Time.deltaTime;
+            print(time.ToString());
+        }
+
         updateTilePositions();
     }
     void Start()
     {
+        
         arrray = instantiateTiles();
         switch (sortingAlgorithm)
         {
@@ -59,6 +69,10 @@ public class SortingScript : MonoBehaviour
                 break;
             case "bubblesort":
                 StartCoroutine(bubbleSort(arrray, 0, end));
+                break;
+            case "bogosort":
+                StartCoroutine(bogoSort(arrray));
+                
                 break;
             case "completed":
                 break;
@@ -161,6 +175,41 @@ public class SortingScript : MonoBehaviour
         print("bubblesorting completed");
         sortingAlgorithm = "completed";
         //yield return WaitForEndOfFrame();
+    }
+
+    IEnumerator bogoSort(List<int> arr)
+    {
+        while (!isSorted(arr))
+        {
+            shuffle(arr);
+            yield return new WaitForEndOfFrame();
+        }
+        
+        print("bogosort done");
+        sortingAlgorithm = "completed";
+    }
+
+    void shuffle(List<int>arr)
+    { //for bogosort
+        int n = arr.Count;
+        int last = n - 1;
+        for(int i = 0; i < last; ++i)
+        {
+            int f = Random.Range(i, n);
+            swap(arr, i, f);
+        }
+    }
+
+    bool isSorted(List<int> arr)
+    {
+        for(int i =0;i < arr.Count-1;i++)
+        {
+            if(arr[i] > arr[i+1])
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
     void swap(List<int> arr, int a, int b)
