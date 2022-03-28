@@ -57,6 +57,11 @@ public class SortingScript : MonoBehaviour
 
                 //updateTilePositions();
                 break;
+            case "bubblesort":
+                StartCoroutine(bubbleSort(arrray, 0, end));
+                break;
+            case "completed":
+                break;
             default:
                 break;
         }
@@ -91,8 +96,7 @@ public class SortingScript : MonoBehaviour
     }
 
     IEnumerator quicksort(List<int> arrray, int start, int endv)
-    {
-
+    { 
         if (start <= endv)
         {
             int indexStart = start;
@@ -112,12 +116,16 @@ public class SortingScript : MonoBehaviour
             swap(arrray, indexStart, endv);
 
           //  printArr(arrray);
-
+           
             StartCoroutine(quicksort(arrray, start, indexStart - 1));
             StartCoroutine(quicksort(arrray, indexStart + 1, endv));
+
         }
+        print("quicksort done");
+        sortingAlgorithm = "stop";
+
     }
-   
+
     int partition(List<int> array, int start, int endv)
     {
         int indexStart = start;
@@ -135,12 +143,31 @@ public class SortingScript : MonoBehaviour
         return indexStart;
     }
 
+    IEnumerator bubbleSort(List<int> arr, int start, int end)
+    {
+        for (int i =start; i <arr.Count ;i++)
+        {
+            for(int j = 0;j<arr.Count-i-1;j++)
+            {
+                int a = arr[j];
+                int b = arr[j+1];
+                if(a>b)
+                {
+                    swap(arr, j, j+1);
+                }
+                yield return new WaitForEndOfFrame();
+            }
+        }
+        print("bubblesorting completed");
+        sortingAlgorithm = "completed";
+        //yield return WaitForEndOfFrame();
+    }
+
     void swap(List<int> arr, int a, int b)
     { //swap the places of the 2 elements
         var temp = arr[a];
         arr[a] = arr[b];
         arr[b] = temp;
-
     }
 
     void updateTilePositions()

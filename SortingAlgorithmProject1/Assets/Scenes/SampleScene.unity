@@ -238,7 +238,7 @@ MonoBehaviour:
   amount: 100
   tilePrefab: {fileID: 2862810693623012524, guid: 43075274a3d8c3e4d85ee4c6fd2dd68e, type: 3}
   xMultiplier: 2
-  sortingAlgorithm: quicksort
+  sortingAlgorithm: bubblesort
 --- !u!4 &1142254154
 Transform:
   m_ObjectHideFlags: 0
