@@ -18,6 +18,11 @@ public class SortingScript : MonoBehaviour
     List<int> values;
     List<int> listOfElems;
 
+    List<int> mergeA;
+    List<int> mergeB;
+    //List<int> res;
+    List<int> ar2;
+    List<int> m;
     float time;
     
 
@@ -26,8 +31,9 @@ public class SortingScript : MonoBehaviour
     {
         values = new List<int>();
         listOfElems = new List<int>();
-
-        for(int i = 1;i<=amount;i++)
+        //res = new List<int>();
+        
+        for (int i = 1;i<=amount;i++)
         {
             values.Add(i);
         }
@@ -42,17 +48,17 @@ public class SortingScript : MonoBehaviour
         
         tileWidth = (float) 1 / amount;   
         tileHeightScale = (float) 10 / amount ;
-
+       
     }
 
     private void Update()
     {
         //printArr(aray);
-        if(sortingAlgorithm != "completed")
+      /*  if(sortingAlgorithm != "completed")
         {
             time += Time.deltaTime;
             print(time.ToString());
-        }
+        }*/
 
         updateTilePositions();
     }
@@ -60,6 +66,12 @@ public class SortingScript : MonoBehaviour
     {
         
         arrray = instantiateTiles();
+        ar2 = new List<int>();
+        m = new List<int>();
+        foreach (var item in arrray)
+        {
+            ar2.Add(item);
+        }
         switch (sortingAlgorithm)
         {
             case "quicksort":
@@ -74,11 +86,124 @@ public class SortingScript : MonoBehaviour
                 StartCoroutine(bogoSort(arrray));
                 
                 break;
+            case "mergesort":
+                
+                StartCoroutine(mergeSort(arrray,ar2,0, ar2.Count-1));
+                break;
             case "completed":
                 break;
             default:
                 break;
         }
+    }
+
+    IEnumerator mergeSort(List<int> arrray,List<int> ar2,int low, int high)
+    {
+        List<int> nes = new List<int>();
+        print("ar2 : ");
+        printArr(ar2);
+        if(ar2.Count <= 1)
+        {
+            print("aaaaaaaaaaa");
+            yield return ar2;
+        }
+
+        else if (low<high)
+        {
+            int mid = (low + high) / 2;
+            mergeA = new List<int>();
+            mergeB = new List<int>();
+
+
+            for (int ia = 0; ia < mid; ia++)
+            {
+                mergeA.Add(ar2[ia]);
+            }
+            yield return new WaitForSeconds(0.001f);
+            for (int ib = mid; ib < ar2.Count; ib++)
+            {
+                mergeB.Add(ar2[ib]);
+            }
+            yield return new WaitForSeconds(0.001f);
+
+            StartCoroutine(mergeSort(arrray, mergeA, low, mid));
+            yield return new WaitForSeconds(0.001f);
+
+            StartCoroutine( mergeSort(arrray, mergeB, mid + 1, high));
+            yield return new WaitForSeconds(0.001f);
+
+            nes = merge(arrray, mergeA, mergeB);
+            foreach (var item in nes)
+            {
+                print("item: " + item);
+            }
+            yield return new WaitForEndOfFrame();
+        }
+    }
+
+    //    IEnumerator merge(List<int>arrray, List<int>a, List<int>b, int mid,int low, int high)
+    List<int> merge(List<int>a, List<int> mergeA, List<int> mergeB)
+    {
+        List<int> res = new List<int>();// result.Clear();
+        
+        int indexB = 0;
+        int indexA = 0;
+        int indexTot = 0 ;
+        print("acount")
+            ;printArr(mergeA);print("mergb");printArr(mergeB);
+        while (indexA < mergeA.Count && indexB < mergeB.Count )
+        {
+            print("arrindexA " + mergeA[indexA] + " ArrindexB " + mergeB[indexB] + " indexA " + indexA + " indedx " + indexB);
+
+            if (mergeA[indexA] < mergeB[indexB])
+            {
+                print("mergeA " + mergeA[indexA]);
+                res.Add(mergeA[indexA]);
+                mergeA.RemoveAt(indexA);
+                indexA++;
+
+            }
+            else
+            {
+                print("mergeb[indewxb] " + mergeB[indexB]);
+
+                res.Add(mergeB[indexB]);
+                mergeB.RemoveAt(indexB);
+                indexB++;
+
+
+            }
+            indexTot++;
+        }
+        while (indexA < mergeA.Count)
+        {
+            print("indexToTA: " + indexTot);
+            res.Add(mergeA[indexA]);
+            mergeA.RemoveAt(indexA);
+            indexA++;
+            indexTot++;
+        }
+        while (indexB < mergeB.Count)
+        {
+            res.Add(mergeB[indexB]);
+            mergeB.RemoveAt(indexB);
+            indexB++;
+            indexTot++;
+        }
+      
+        print("Muua");
+        printArr(res);
+        for(int ih= 0; ih < indexTot; ih++)
+        {
+            print(a[ih]);
+            arrray[ih] = res[ih];
+            print(res[ih]);
+            print("\n\n\n\n");
+        }
+        //
+        //yield return new WaitForEndOfFrame();
+        print("arrayt count" + a.Count);
+        return res;
     }
 
     public List<int> instantiateTiles()
@@ -87,6 +212,8 @@ public class SortingScript : MonoBehaviour
         tilePrefabArray = new List<GameObject>();
         float i = tileWidth * 0.5f;
         int index = 0;
+        print("ALL ELEMTS IN ARRAY");
+        printArr(listOfElems);
         foreach (var tile in listOfElems)
         {
             Vector3 tilePos = new Vector3(i, 0.5f, 10f);
@@ -104,6 +231,7 @@ public class SortingScript : MonoBehaviour
             index++;
             i += tileWidth;
 
+           
         }
 
         return tileArray;
@@ -135,8 +263,12 @@ public class SortingScript : MonoBehaviour
             StartCoroutine(quicksort(arrray, indexStart + 1, endv));
 
         }
-        print("quicksort done");
-        sortingAlgorithm = "stop";
+
+        if (isSorted(arrray))
+        {
+            print("quicksort done");
+            sortingAlgorithm = "completed";
+        }
 
     }
 
