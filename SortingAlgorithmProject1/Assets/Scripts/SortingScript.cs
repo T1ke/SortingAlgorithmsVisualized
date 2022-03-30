@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class SortingScript : MonoBehaviour
 {
@@ -18,13 +19,10 @@ public class SortingScript : MonoBehaviour
     List<int> values;
     List<int> listOfElems;
 
-    List<int> mergeA;
-    List<int> mergeB;
-    //List<int> res;
     List<int> ar2;
     List<int> m;
     float time;
-    
+    int[] arrrray;
 
     // Start is called before the first frame update
     private void Awake()
@@ -64,31 +62,23 @@ public class SortingScript : MonoBehaviour
     }
     void Start()
     {
-        
         arrray = instantiateTiles();
-        ar2 = new List<int>();
-        m = new List<int>();
-        foreach (var item in arrray)
-        {
-            ar2.Add(item);
-        }
+        arrrray = arrray.ToArray();
         switch (sortingAlgorithm)
         {
             case "quicksort":
-                StartCoroutine( quicksort(arrray, 0, end));
-
+                StartCoroutine(quicksort(arrray, 0, end));
                 //updateTilePositions();
                 break;
             case "bubblesort":
                 StartCoroutine(bubbleSort(arrray, 0, end));
                 break;
             case "bogosort":
-                StartCoroutine(bogoSort(arrray));
-                
+                StartCoroutine(bogoSort(arrray));          
                 break;
             case "mergesort":
-                
-                StartCoroutine(mergeSort(arrray,ar2,0, ar2.Count-1));
+                //StartCoroutine(MergeSort(arrrray)); //idk easy algorithm to implement but cant visualize it yet
+                arrray = MergeSort(arrray.ToArray()).ToList();       //immediately sorts using the mergesort algorithm...       
                 break;
             case "completed":
                 break;
@@ -97,113 +87,149 @@ public class SortingScript : MonoBehaviour
         }
     }
 
-    IEnumerator mergeSort(List<int> arrray,List<int> ar2,int low, int high)
+   /* IEnumerator MergeSort(int[] arrrray)
     {
-        List<int> nes = new List<int>();
-        print("ar2 : ");
-        printArr(ar2);
-        if(ar2.Count <= 1)
+
+        if (arrrray.Length > 1)
         {
-            print("aaaaaaaaaaa");
-            yield return ar2;
+            var mergeA = new List<int>();
+            var mergeB = new List<int>();
+            
+            for (int i = 0; i < arrrray.Length; i++)
+            {
+                if (i % 2 != 0)
+                {
+                    mergeA.Add(arrrray[i]);
+                }
+                else
+                {
+                    mergeB.Add(arrrray[i]);
+                }
+            }
+            mergeA= StartCoroutine( MergeSort(mergeA.ToArray()));
+            yield return MergeSort(mergeB.ToArray());
+            // List<int> res = new List<int>();// result.Clear();
+            //yield return Merge(arrrray,mergeA, mergeB) ;
+            List<int> res = new List<int>();
+            while (mergeA.Count > 0 && mergeB.Count > 0)
+            {
+                if (mergeA.First() <= mergeB.First())
+                {
+                    res.Add(mergeA.First());
+                    mergeA.RemoveAt(0);
+                }
+                else
+                {
+                    res.Add(mergeB.First());
+                    mergeB.RemoveAt(0);
+                }
+            }
+            while (mergeA.Count > 0)
+            {
+                res.Add(mergeA.First());
+                mergeA.RemoveAt(0);
+            }
+            while (mergeB.Count > 0)
+            {
+                res.Add(mergeB.First());
+                mergeB.RemoveAt(0);
+            }
+           
         }
-
-        else if (low<high)
+        else
         {
-            int mid = (low + high) / 2;
-            mergeA = new List<int>();
-            mergeB = new List<int>();
-
-
-            for (int ia = 0; ia < mid; ia++)
-            {
-                mergeA.Add(ar2[ia]);
-            }
-            yield return new WaitForSeconds(0.001f);
-            for (int ib = mid; ib < ar2.Count; ib++)
-            {
-                mergeB.Add(ar2[ib]);
-            }
-            yield return new WaitForSeconds(0.001f);
-
-            StartCoroutine(mergeSort(arrray, mergeA, low, mid));
-            yield return new WaitForSeconds(0.001f);
-
-            StartCoroutine( mergeSort(arrray, mergeB, mid + 1, high));
-            yield return new WaitForSeconds(0.001f);
-
-            nes = merge(arrray, mergeA, mergeB);
-            foreach (var item in nes)
-            {
-                print("item: " + item);
-            }
-            yield return new WaitForEndOfFrame();
+            yield return arrrray;
         }
     }
 
-    //    IEnumerator merge(List<int>arrray, List<int>a, List<int>b, int mid,int low, int high)
-    List<int> merge(List<int>a, List<int> mergeA, List<int> mergeB)
+    IEnumerator Merge(int[] arrrray,List<int> mergeA, List<int> mergeB)
     {
-        List<int> res = new List<int>();// result.Clear();
-        
-        int indexB = 0;
-        int indexA = 0;
-        int indexTot = 0 ;
-        print("acount")
-            ;printArr(mergeA);print("mergb");printArr(mergeB);
-        while (indexA < mergeA.Count && indexB < mergeB.Count )
+        List<int> res = new List<int>();
+        while (mergeA.Count > 0 && mergeB.Count > 0)
         {
-            print("arrindexA " + mergeA[indexA] + " ArrindexB " + mergeB[indexB] + " indexA " + indexA + " indedx " + indexB);
-
-            if (mergeA[indexA] < mergeB[indexB])
+            if (mergeA.First() <= mergeB.First())
             {
-                print("mergeA " + mergeA[indexA]);
-                res.Add(mergeA[indexA]);
-                mergeA.RemoveAt(indexA);
-                indexA++;
-
+                res.Add(mergeA.First());
+                mergeA.RemoveAt(0);
             }
             else
             {
-                print("mergeb[indewxb] " + mergeB[indexB]);
-
-                res.Add(mergeB[indexB]);
-                mergeB.RemoveAt(indexB);
-                indexB++;
-
-
+                res.Add(mergeB.First());
+                mergeB.RemoveAt(0);
             }
-            indexTot++;
         }
-        while (indexA < mergeA.Count)
+        while (mergeA.Count > 0)
         {
-            print("indexToTA: " + indexTot);
-            res.Add(mergeA[indexA]);
-            mergeA.RemoveAt(indexA);
-            indexA++;
-            indexTot++;
+            res.Add(mergeA.First());
+            mergeA.RemoveAt(0);
         }
-        while (indexB < mergeB.Count)
+        while (mergeB.Count > 0)
         {
-            res.Add(mergeB[indexB]);
-            mergeB.RemoveAt(indexB);
-            indexB++;
-            indexTot++;
+            res.Add(mergeB.First());
+            mergeB.RemoveAt(0);
         }
-      
-        print("Muua");
+        arrrray = res.ToArray();
+        yield return new WaitForSeconds(0.001f);
+
+    }*/
+
+    int[] MergeSort(int[] arrray)
+    {
+        if (arrray.Length <= 1)
+        {
+            print("aaaaaaaaaaa");
+            //yield return arrray;
+            return arrray;
+        }
+        var mergeA = new List<int>();
+        var mergeB = new List<int>();
+        for(int i = 0; i < arrray.Length; i++)
+        {
+            if(i%2!=0)
+            {
+                mergeA.Add(arrray[i]);
+            }
+            else
+            {
+                mergeB.Add(arrray[i]);
+            }
+        }
+        mergeA = MergeSort(mergeA.ToArray()).ToList(); 
+        mergeB = MergeSort(mergeB.ToArray()).ToList();
+
+        return Merge(mergeA,mergeB);
+    }
+
+    int[] Merge(List<int> mergeA, List<int> mergeB)
+    {
+        List<int> res = new List<int>();// result.Clear();
+
+        while (mergeA.Count > 0 && mergeB.Count > 0)
+        {
+            if(mergeA.First() <= mergeB.First())
+            {
+                res.Add(mergeA.First());
+                mergeA.RemoveAt(0);
+            }
+            else
+            {
+                res.Add(mergeB.First());
+                mergeB.RemoveAt(0);
+            }
+        }
+        while(mergeA.Count > 0)
+        {
+            res.Add(mergeA.First());
+            mergeA.RemoveAt(0);
+
+        }
+        while (mergeB.Count > 0)
+        {
+            res.Add(mergeB.First());
+            mergeB.RemoveAt(0);
+        }
         printArr(res);
-        for(int ih= 0; ih < indexTot; ih++)
-        {
-            print(a[ih]);
-            arrray[ih] = res[ih];
-            print(res[ih]);
-            print("\n\n\n\n");
-        }
-        //
-        //yield return new WaitForEndOfFrame();
-        print("arrayt count" + a.Count);
-        return res;
+        return res.ToArray();
     }
 
     public List<int> instantiateTiles()
